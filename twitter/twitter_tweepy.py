@@ -1,8 +1,9 @@
 #Import the necessary methods from tweepy library
 import tweepy
 import pprint
+from secret import *
 
-#Variables that contains the user credentials to access Twitter API 
+#Variables that contains the user credentials to access Twitter API
 
 class TwitterStreamListener(tweepy.StreamListener):
     def on_data(self, data):
