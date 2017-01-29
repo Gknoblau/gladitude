@@ -6,6 +6,7 @@ from secret import *
 import boto3
 import re
 import preprocessor as p
+import time
 p.set_options(p.OPT.URL, p.OPT.EMOJI)
 
 
@@ -90,5 +91,10 @@ if __name__ == "__main__":
     #     t.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
     #     t.start()
     stream = tweepy.Stream(auth, TwitterStreamListener())
-    stream.filter(locations=[-125.0011, 24.9493, -66.9326, 49.5904])
+    while True:
+        try:
+            stream.filter(locations=[-125.0011, 24.9493, -66.9326, 49.5904])
+        except:
+            continue()
+        time.wait(10)
         #stream.sample(1)
