@@ -9,12 +9,37 @@ import {MapChoropleth} from 'react-d3-map-choropleth';
 import unemploy from "./unemployment.json"
 
 class App extends Component {
+
+  getInitalState(){
+    return {data: unemploy};
+  }
+  getData(){
+
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open("GET", 'http://127.0.0.1:5000/', true); // true for asynchronous
+      xmlHttp.onreadystatechange = () => {
+          if(xmlHttp.readyState === XMLHttpRequest.DONE && xmlHttp.status === 200){
+            this.setState({data: xmlHttp.responseText.items});
+          }
+      }
+      xmlHttp.send();
+
+  };
+
+  componentDidMount(){
+    this.getData();
+  };
+
   render() {
+
+
+
     const width = 960;
     const height = 600;
 
     const dataStates = topojson.mesh(topodata, topodata.objects.states, (a, b) => a !== b);
     const dataCounties = topojson.feature(topodata, topodata.objects.counties).features;
+
 
     const domain = {
       scale: 'quantize',
@@ -23,6 +48,12 @@ class App extends Component {
     };
     const domainValue = d => d.rate;
     const domainKey = d => d.id;
+
+    if(this.state === undefined || this.state === null) {
+      return (<div> Loading data </div>);
+    }
+
+    console.log(this.state.data);
 
     return (
       <div className="App">
@@ -34,7 +65,7 @@ class App extends Component {
           dataMesh={dataStates}
           scale={1000}
           domain={domain}
-          domainData={unemploy}
+          domainData={this.state.data}
           domainValue={domainValue}
           domainKey={domainKey}
           mapKey={domainKey}
