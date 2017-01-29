@@ -32,7 +32,7 @@ class App extends Component {
 
   render() {
     if (!this.state.data) {
-      return (<div> Loading data </div>);
+      return (<div className="loader"></div>);
     }
 
     const width = 960;
