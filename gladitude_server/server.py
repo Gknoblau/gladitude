@@ -21,7 +21,7 @@ with open('../twitter/zip2fips.json') as data_file:
 fips = set(zip2fips.values())
 
 
-@app.route("/data")
+@app.route("/")
 def a():
     resp = table.scan(FilterExpression=Attr("fips").exists())
     sorted_by_fips = {}
