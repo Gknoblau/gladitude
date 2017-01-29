@@ -23,7 +23,7 @@ class App extends Component {
         this.setState({
           data: response.items
         })
-      })
+      });
   };
 
   componentDidMount(){
@@ -38,7 +38,7 @@ class App extends Component {
     const width = 960;
     const height = 600;
 
-    // Createing the map
+    // Creating the map
     const dataStates = topojson.mesh(topodata, topodata.objects.states, (a, b) => a !== b);
     const dataCounties = topojson.feature(topodata, topodata.objects.counties).features;
 
@@ -46,29 +46,34 @@ class App extends Component {
     const domain = {
       scale: 'quantize',
       domain: [-1, 1],
-      range: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].map(i => "q" + i + "-9") // Defines how many steps as well as css classes for them
+      range: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => "q" + i + "-9") // Defines how many steps as well as css classes for them
     };
     const domainValue = d => d.rate;
     const domainKey = d => d.id;
 
     return (
       <div className="App">
+        <h1>America Speaks</h1>
         <MapChoropleth
           width={width}
           height={height}
           dataPolygon={dataCounties}
           dataMesh={dataStates}
-          scale={1000}
+          scale={1300}
           domain={domain}
           domainData={this.state.data}
           domainValue={domainValue}
           domainKey={domainKey}
           mapKey={domainKey}
+          showTooltip={true}
           translate={[width/2, height/2]}
-          tooltipContent={() => {}}
+          tooltipContent={(e) => {
+            return (Object.values(e.properties)[0] || 0).toString()
+          }}
           projection='albersUsa'
           legend={true}
         />
+        <p>Colors from www.ColorBrewer.org by Cynthia A. Brewer, Geography, Pennsylvania State University.</p>
       </div>
     );
   }
