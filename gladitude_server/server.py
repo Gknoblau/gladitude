@@ -10,12 +10,12 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, resources=r'*', crossdomain=True)
 
-dynamodb = boto3.resource('dynamodb')
+dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
 table = dynamodb.Table('fuck')
 print(table)
 
 
-with open('../zip2fips.json') as data_file:
+with open('../twitter/zip2fips.json') as data_file:
     zip2fips = json.load(data_file)
 
 fips = set(zip2fips.values())
