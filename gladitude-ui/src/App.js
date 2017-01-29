@@ -51,15 +51,25 @@ class App extends Component {
     const domainValue = d => d.rate;
     const domainKey = d => d.id;
 
+    const legend = <div className="legend">
+        <div>Polarity of Tweets</div>
+        <div className="rates">
+            <span className="negative">Negative</span>
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <div className={`legend-box q${i}-9`}/>)}
+            <span className="positive">Positive</span>
+        </div>
+    </div>;
+
     return (
       <div className="App">
-        <h1>America Speaks</h1>
+        <h1>Gladitude</h1>
+        <h2>Analyzing the polarity of tweets by US district</h2>
         <MapChoropleth
           width={width}
           height={height}
           dataPolygon={dataCounties}
           dataMesh={dataStates}
-          scale={1300}
+          scale={1200}
           domain={domain}
           domainData={this.state.data}
           domainValue={domainValue}
@@ -70,6 +80,7 @@ class App extends Component {
           projection='albersUsa'
           legend={true}
         />
+        {legend}
         <p>Colors from www.ColorBrewer.org by Cynthia A. Brewer, Geography, Pennsylvania State University.</p>
       </div>
     );

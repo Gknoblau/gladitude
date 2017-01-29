@@ -41,7 +41,7 @@ path {
 .q2-9.polygon { fill:rgb(214,96,77) !important; }
 .q3-9.polygon { fill:rgb(244,165,130) !important; }
 .q4-9.polygon { fill:rgb(253,219,199) !important; }
-.q5-9.polygon { fill:rgb(247,247,247) !important; }
+.q5-9.polygon { fill:rgb(230,230,230) !important; }
 .q6-9.polygon { fill:rgb(209,229,240) !important; }
 .q7-9.polygon { fill:rgb(146,197,222) !important; }
 .q8-9.polygon { fill:rgb(67,147,195) !important; }
@@ -50,6 +50,7 @@ path {
 
 .polygon:hover {
   fill-opacity: 0.5;
+  fill: black !important;
 }
 
 .loader {
@@ -74,4 +75,53 @@ path {
     to {
         transform: rotate(360deg);
     }
+}
+
+.legend {
+    text-align: left;
+    float: right;
+}
+
+.rates {
+    display: flex;
+    flex-direction: row;
+}
+
+.legend-box {
+    height: 20px;
+    width: 10px;
+}
+
+.q0-9 { background-color:rgb(103,0,31) !important;}
+.q1-9 { background-color:rgb(178,24,43) !important; }
+.q2-9 { background-color:rgb(214,96,77) !important; }
+.q3-9 { background-color:rgb(244,165,130) !important; }
+.q4-9 { background-color:rgb(253,219,199) !important; }
+.q5-9 { background-color:rgb(230,230,230) !important; }
+.q6-9 { background-color:rgb(209,229,240) !important; }
+.q7-9 { background-color:rgb(146,197,222) !important; }
+.q8-9 { background-color:rgb(67,147,195) !important; }
+.q9-9 { background-color:rgb(33,102,172) !important; }
+.q10-9 { background-color:rgb(5,48,97) !important; }
+
+.positive {
+    margin-left: 10px;
+    font-size: 11px
+}
+
+.negative {
+    margin-right: 10px;
+    font-size: 11px
+}
+
+h1, h2 {
+    margin: 0;
+}
+
+h1 {
+    font-size: 20px;
+}
+
+h2 {
+    font-size: 16px;
 }
