@@ -1,0 +1,38 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.q0-9.polygon { fill:rgb(247,251,255); }
+.q1-9.polygon { fill:rgb(222,235,247); }
+.q2-9.polygon { fill:rgb(198,219,239); }
+.q3-9.polygon { fill:rgb(158,202,225); }
+.q4-9.polygon { fill:rgb(107,174,214); }
+.q5-9.polygon { fill:rgb(66,146,198); }
+.q6-9.polygon { fill:rgb(33,113,181); }
+.q7-9.polygon { fill:rgb(8,81,156); }
+.q8-9.polygon { fill:rgb(8,48,107); }
+
+.polygon:hover {
+  fill-opacity: 0.5;
+}
