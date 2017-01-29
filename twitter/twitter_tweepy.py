@@ -1,9 +1,9 @@
 import datetime
-import boto.dynamodb
 import tweepy
 from geopy.geocoders import Nominatim
 import usaddress
 import json
+from textblob import TextBlob
 
 from secret import *
 
@@ -12,10 +12,10 @@ from secret import *
 geolocator = Nominatim()
 epoch = datetime.datetime.utcfromtimestamp(0)
 
-conn = boto.dynamodb.connect_to_region(
-        'us-west-2',
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key)
+# conn = boto.dynamodb.connect_to_region(
+#         'us-west-2',
+#         aws_access_key_id=aws_access_key_id,
+#         aws_secret_access_key=aws_secret_access_key)
 # table = conn.get_table('tweets')
 
 with open('zip2fips.json') as data_file:

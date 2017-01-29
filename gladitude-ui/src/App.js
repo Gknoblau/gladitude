@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import topodata from "./us.json"
-var topojson = require('topojson');
-var MapChoropleth = require('react-d3-map-choropleth').MapChoropleth;
+import * as topojson from 'topojson';
+import {MapChoropleth} from 'react-d3-map-choropleth';
 import unemploy from "./unemployment.json"
 
 class App extends Component {
@@ -31,27 +31,21 @@ class App extends Component {
 
     return (
       <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
         <MapChoropleth
-          width= {width}
-          height= {height}
-          dataPolygon= {dataCounties}
-          dataMesh= {dataStates}
-          scale= {scale}
-          domain= {domain}
-          domainData= {unemploy}
-          domainValue= {domainValue}
-          domainKey= {domainKey}
-          mapKey = {mapKey}
-          translate= {translate}
-          projection= {projection}
-          showGraticule= {true}
+          width={width}
+          height={height}
+          dataPolygon={dataCounties}
+          dataMesh={dataStates}
+          scale={scale}
+          domain={domain}
+          domainData={unemploy}
+          domainValue={domainValue}
+          domainKey={domainKey}
+          mapKey={mapKey}
+          translate={translate}
+          tooltipContent={(e) => {console.log(e)}}
+          projection={projection}
+          showGraticule={false}
         />
       </div>
     );
