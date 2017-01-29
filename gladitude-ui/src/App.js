@@ -1,9 +1,11 @@
+// Based on code from https://github.com/react-d3/react-d3-map-choropleth react-d3
+// This file as well as us.json are also licenced under Apache 2.0
 import React, { Component } from 'react';
 import './App.css';
 import HeaderBar from './HeaderBar';
 import topodata from "./us.json"
-var topojson = require('topojson');
-var MapChoropleth = require('react-d3-map-choropleth').MapChoropleth;
+import * as topojson from 'topojson';
+import {MapChoropleth} from 'react-d3-map-choropleth';
 import unemploy from "./unemployment.json"
 
 class App extends Component {
@@ -16,18 +18,16 @@ class App extends Component {
     const dataCounties = topojson.feature(topodata, topodata.objects.counties).features;
 
     // domain
-  const domain = {
-    scale: 'quantize',
-    domain: [0, .15],
-    range: [0, 1, 2, 3, 4, 5, 6, 7, 8].map(function(i) { return "q" + i + "-9"; })
-  };
-  const domainValue = function(d) { return +d.rate; };
-  const domainKey = function(d) {return +d.id};
-  const mapKey = function(d) {return +d.id};
+    const domain = {
+      scale: 'quantize',
+      domain: [0, .15],
+      range: [0, 1, 2, 3, 4, 5, 6, 7, 8].map(function(i) { return "q" + i + "-9"; })
+    };
+    const domainValue = function(d) { return +d.rate; };
+    const domainKey = function(d) {return +d.id};
+    const mapKey = function(d) {return +d.id};
 
-  const scale = 1280;
-  const translate = [width / 2, height / 2];
-  const projection = 'albersUsa';
+    const translate = [width / 2, height / 2];
 
     return (
       <div className="App">
