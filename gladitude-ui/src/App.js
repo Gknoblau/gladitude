@@ -8,12 +8,31 @@ import {MapChoropleth} from 'react-d3-map-choropleth';
 import unemploy from "./unemployment.json"
 
 class App extends Component {
+  constructor() {
+    super()
+
+    this.state = {
+      data: null
+    }
+  }
+
+  componentDidMount() {
+    fetch(new Request("http://ec2-54-202-166-220.us-west-2.compute.amazonaws.com/"))
+    .then(response => response.json())
+    .then(response => {
+      this.setState({data: response});
+    });
+  }
+
   render() {
+    if (!this.state.data) {
+        return <noscript/>;
+    }
     const width = 960;
     const height = 600;
 
-    const dataStates = topojson.mesh(topodata, topodata.objects.states, (a, b) => a !== b);
-    const dataCounties = topojson.feature(topodata, topodata.objects.counties).features;
+    const dataStates = topojson.mesh(this.state.data, this.state.data.objects.states, (a, b) => a !== b);
+    const dataCounties = topojson.feature(this.state.data, this.state.data.objects.counties).features;
 
     const domain = {
       scale: 'quantize',
