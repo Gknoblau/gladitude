@@ -1,50 +1,71 @@
-#Import the necessary methods from tweepy library
 import datetime
-
 import boto.dynamodb
 import tweepy
+from geopy.geocoders import Nominatim
+import usaddress
+import json
 
-#Variables that contains the user credentials to access Twitter API
-ACCESS_TOKEN = "825428485342507008-Sv7yaJk6pkFi8CNYQFHvCA5tPNcKb5S"
-ACCESS_TOKEN_SECRET = "z45CtmlJoSgfgFrnqeDe41bxo0cUlpvdqzB3sQq0niIt5"
-CONSUMER_KEY = "eRoCZjX92AKa7GuJBR9VE0zqu"
-CONSUMER_SECRET = "oOJICZMxFS7p4ufXoIVQBMDpbz9tEWVTxGpW88WgyU8Mbndra6"
+from secret import *
 
+
+# SETUP
+geolocator = Nominatim()
 epoch = datetime.datetime.utcfromtimestamp(0)
+
 conn = boto.dynamodb.connect_to_region(
         'us-west-2',
-        aws_access_key_id='AKIAIIMMXJREASSBQ6ZA',
-        aws_secret_access_key='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')
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key)
+# table = conn.get_table('tweets')
 
-table = conn.get_table('tweets')
+with open('zip2fips.json') as data_file:
+    zip2fips = json.load(data_file)
+
+
+def get_fips(coords):
+    print(type(coords[0]))
+    location = geolocator.reverse('{:f}, {:f}'.format(coords[0], coords[1]))
+    print(type(location.address))
+    d = usaddress.tag(location.address)
+    if 'AddressNumber' not in d[0].keys():
+        raise ZipCodeException()
+    else:
+
+        return zip2fips[d[0]['AddressNumber']]
+
+
+class ZipCodeException(Exception):
+    pass
+
 
 class TwitterStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
+        try:
+            if status.geo != None:
+                print(status.coordinates['coordinates'])
+                print(status.geo)
+                item_data = {
+                    'id': status.id,
+                    'text': status.text,
+                    'timestamp': (status.created_at - epoch).total_seconds() * 1000.0,
+                    'coordinates': status.coordinates['coordinates'],
+                    'fips': get_fips(status.geo['coordinates']),
+                    'hashtags': status.entities['hashtags'],
+                    'location': status.coordinates
+                }
+                import pprint; pprint.pprint(item_data)
 
-        if status.geo != None:
-            item_data = {
-                'id': status.id,
-                'text': status.text,
-                'timestamp': (status.created_at - epoch).total_seconds() * 1000.0,
-                'coordinates': status.coordinates,
-                'hashtags': status.entities['hashtags'],
-                'location': status.coordinates
-            }
-            print(status.coordinates)
+        except ZipCodeException:
+            print("Zip code error - skipping this tweet")
+        except KeyError:
+            print('zip code dne on zip2fips')
 
     def on_error(self, status):
         print(status)
 
-
-class Tweet():
-
-    def __init__(self):
-        pass
-
 if __name__ == "__main__":
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
     stream = tweepy.Stream(auth, TwitterStreamListener())
     stream.sample(1)
-
