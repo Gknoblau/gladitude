@@ -2,28 +2,28 @@
 // This file as well as us.json are also licenced under Apache 2.0
 import React, {Component} from 'react';
 import './App.css';
-import HeaderBar from './HeaderBar';
 import topodata from "./us.json"
 import * as topojson from 'topojson';
 import {MapChoropleth} from 'react-d3-map-choropleth';
-import unemploy from "./unemployment.json"
 
 class App extends Component {
 
-  getInitalState(){
-    return {data: unemploy};
+  constructor() {
+    super();
+
+    this.state = {
+      data: null
+    }
   }
+
   getData(){
-
-      var xmlHttp = new XMLHttpRequest();
-      xmlHttp.open("GET", 'http://127.0.0.1:5000/', true); // true for asynchronous
-      xmlHttp.onreadystatechange = () => {
-          if(xmlHttp.readyState === XMLHttpRequest.DONE && xmlHttp.status === 200){
-            this.setState({data: xmlHttp.responseText.items});
-          }
-      }
-      xmlHttp.send();
-
+      fetch(new Request('http://gladitude.net/data'))
+      .then(response => response.json())
+      .then(response => {
+        this.setState({
+          data: response.items
+        })
+      })
   };
 
   componentDidMount(){
@@ -31,33 +31,28 @@ class App extends Component {
   };
 
   render() {
-
-
+    if (!this.state.data) {
+      return (<div> Loading data </div>);
+    }
 
     const width = 960;
     const height = 600;
 
+    // Createing the map
     const dataStates = topojson.mesh(topodata, topodata.objects.states, (a, b) => a !== b);
     const dataCounties = topojson.feature(topodata, topodata.objects.counties).features;
 
 
     const domain = {
       scale: 'quantize',
-      domain: [0, 0.15],
-      range: [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => "q" + i + "-9")
+      domain: [-1, 1],
+      range: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].map(i => "q" + i + "-9") // Defines how many steps as well as css classes for them
     };
     const domainValue = d => d.rate;
     const domainKey = d => d.id;
 
-    if(this.state === undefined || this.state === null) {
-      return (<div> Loading data </div>);
-    }
-
-    console.log(this.state.data);
-
     return (
       <div className="App">
-      <HeaderBar/>
         <MapChoropleth
           width={width}
           height={height}
