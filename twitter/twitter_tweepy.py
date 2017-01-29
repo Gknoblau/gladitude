@@ -4,10 +4,15 @@ from geopy.geocoders import Nominatim
 import json
 from secret import *
 import boto3
+from textblob import TextBlob
+import re
+import preprocessor as p
+p.set_options(p.OPT.URL, p.OPT.EMOJI)
+
 
 # Get the service resource.
-dynamodb = boto3.resource('dynamodb', )
-table = dynamodb.Table('gladitude')
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('fuck')
 geolocator = Nominatim()
 epoch = datetime.datetime.utcfromtimestamp(0)
 
@@ -32,41 +37,48 @@ def get_fips(coords):
                     fips = zip2fips[location.raw['address']['postcode']]
                 except IndexError:
                     print("FIPS could not be found")
-
                 return fips, zipcode
             else:
-                print()
+                print("Not in the US")
         else:
-            pass
+            print("No Country code is in the address")
 
     else:
-        raise NoAddressInRaw
+        print("No address")
 
 
 
 class TwitterStreamListener(tweepy.StreamListener):
-
     def on_status(self, status):
         try:
             if status.geo != None:
                 fips, zipcode = get_fips(status.geo['coordinates'])
-                print(fips)
-                print(zipcode)
-                item_data = {
-                    'ID': status.id,
-                    'text': status.text,
-                    'timestamp': int((status.created_at - epoch).total_seconds() * 1000),
-                    'fips': int(fips),
-                    'zipcode': int(zipcode),
-                    'hashtags': status.entities['hashtags']
-                }
-                import pprint; pprint.pprint(item_data)
-                print("putting data in")
-                table.put_item(Item=item_data)
+                if fips is None:
+                    print("Fips is None")
+                    raise Exception
+                if zipcode is None:
+                    print("Zipcode is None")
+                    raise Exception
+                txt = re.sub('[!@#$]', '', status.text)
+                txt = p.clean(txt)
+                try:
+                    table.update_item(
+                        Key={
+                            'fips': int(fips)
+                        },
+                        UpdateExpression='ADD tweet :val1',
+                        ExpressionAttributeValues={
+                            ':val1': set([txt])
+                        }
+                    )
+                except:
+                    print("it crashed")
+
+                print("FIPS:" + fips)
+                print("TXT:" + txt)
 
         except Exception as e:
             print(e)
-
 
     def on_error(self, status):
         print(status)
@@ -74,5 +86,10 @@ class TwitterStreamListener(tweepy.StreamListener):
 if __name__ == "__main__":
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
+    # for i in range(4):
+    #     t = threading.Thread(target=worker)
+    #     t.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
+    #     t.start()
     stream = tweepy.Stream(auth, TwitterStreamListener())
-    stream.sample(1)
+    stream.filter(locations=[-125.0011, 24.9493, -66.9326, 49.5904])
+        #stream.sample(1)
