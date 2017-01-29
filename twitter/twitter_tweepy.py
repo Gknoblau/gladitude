@@ -1,65 +1,99 @@
 import datetime
-import boto.dynamodb
+import boto3
 import tweepy
 from geopy.geocoders import Nominatim
-import usaddress
 import json
-
 from secret import *
+import boto3
+from textblob import TextBlob
+
+# Get the service resource.
+dynamodb = boto3.resource('dynamodb', )
+
+table = dynamodb.Table('gladitude')
 
 
-# SETUP
-geolocator = Nominatim()
-epoch = datetime.datetime.utcfromtimestamp(0)
 
-conn = boto.dynamodb.connect_to_region(
-        'us-west-2',
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key)
-# table = conn.get_table('tweets')
-
-with open('zip2fips.json') as data_file:
+with open('../zip2fips.json') as data_file:
     zip2fips = json.load(data_file)
 
 
+geolocator = Nominatim()
+epoch = datetime.datetime.utcfromtimestamp(0)
+
+
+
 def get_fips(coords):
-    print(type(coords[0]))
+
+    print(coords)
     location = geolocator.reverse('{:f}, {:f}'.format(coords[0], coords[1]))
-    print(type(location.address))
-    d = usaddress.tag(location.address)
-    if 'AddressNumber' not in d[0].keys():
-        raise ZipCodeException()
+    print(location.raw)
+    if 'address' in location.raw:
+        if 'country_code' in location.raw['address']:
+            if location.raw['address']['country_code'] == 'us':
+                if 'postcode' in location.raw['address']:
+                    zipcode = location.raw['address']['postcode']
+                else:
+                    raise NoPostCode
+
+                try:
+                    fips = zip2fips[location.raw['address']['postcode']]
+                except IndexError:
+                    raise DNEInFips
+                return fips, zipcode
+            else:
+                raise NotInUS
+
+
     else:
+        raise NoAddressInRaw
 
-        return zip2fips[d[0]['AddressNumber']]
 
 
-class ZipCodeException(Exception):
+
+class NoAddressInRaw(Exception):
     pass
 
+class NoCountryCode(Exception):
+    pass
+class DNEInFips(Exception):
+    pass
+
+class NoPostCode(Exception):
+    pass
+
+class NotInUS(Exception):
+    pass
 
 class TwitterStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         try:
             if status.geo != None:
-                print(status.coordinates['coordinates'])
-                print(status.geo)
+
+                fips, zipcode = get_fips(status.geo['coordinates'])
+                testimonal = TextBlob(status.text)
+                polarity = str(testimonal.sentiment.polarity)
+                subjectivity = str(testimonal.sentiment.subjectivity)
+                print(fips)
+                print(zipcode)
                 item_data = {
-                    'id': status.id,
+                    'ID': status.id,
                     'text': status.text,
-                    'timestamp': (status.created_at - epoch).total_seconds() * 1000.0,
-                    'coordinates': status.coordinates['coordinates'],
-                    'fips': get_fips(status.geo['coordinates']),
-                    'hashtags': status.entities['hashtags'],
-                    'location': status.coordinates
+                    'polarity': polarity,
+                    'subjectivity': subjectivity,
+                    'timestamp': int((status.created_at - epoch).total_seconds() * 1000),
+                    'fips': int(fips),
+                    'zipcode': int(zipcode),
+                    'hashtags': status.entities['hashtags']
                 }
                 import pprint; pprint.pprint(item_data)
+                print("putting data in")
+                table.put_item(Item=item_data)
 
-        except ZipCodeException:
-            print("Zip code error - skipping this tweet")
-        except KeyError:
-            print('zip code dne on zip2fips')
+        except Exception as e:
+            print(e)
+
 
     def on_error(self, status):
         print(status)
