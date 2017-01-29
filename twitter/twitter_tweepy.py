@@ -4,19 +4,19 @@ from geopy.geocoders import Nominatim
 import json
 from secret import *
 import boto3
-from textblob import TextBlob
 import re
 import preprocessor as p
+import time
 p.set_options(p.OPT.URL, p.OPT.EMOJI)
 
 
 # Get the service resource.
-dynamodb = boto3.resource('dynamodb')
+dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
 table = dynamodb.Table('fuck')
 geolocator = Nominatim()
 epoch = datetime.datetime.utcfromtimestamp(0)
 
-with open('../zip2fips.json') as data_file:
+with open('zip2fips.json') as data_file:
     zip2fips = json.load(data_file)
 
 
@@ -91,5 +91,10 @@ if __name__ == "__main__":
     #     t.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
     #     t.start()
     stream = tweepy.Stream(auth, TwitterStreamListener())
-    stream.filter(locations=[-125.0011, 24.9493, -66.9326, 49.5904])
+    while True:
+        try:
+            stream.filter(locations=[-125.0011, 24.9493, -66.9326, 49.5904])
+        except:
+            continue()
+        time.wait(10)
         #stream.sample(1)
