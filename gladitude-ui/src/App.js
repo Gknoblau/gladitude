@@ -65,11 +65,8 @@ class App extends Component {
           domainValue={domainValue}
           domainKey={domainKey}
           mapKey={domainKey}
-          showTooltip={true}
           translate={[width/2, height/2]}
-          tooltipContent={(e) => {
-            return (Object.values(e.properties)[0] || 0).toString()
-          }}
+          tooltipContent={() => {}}
           projection='albersUsa'
           legend={true}
         />
