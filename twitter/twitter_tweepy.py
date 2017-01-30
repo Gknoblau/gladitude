@@ -95,6 +95,6 @@ if __name__ == "__main__":
         try:
             stream.filter(locations=[-125.0011, 24.9493, -66.9326, 49.5904])
         except:
-            continue()
+            continue
         time.wait(10)
         #stream.sample(1)
